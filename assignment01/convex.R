@@ -1,0 +1,10 @@
+#! /usr/bin/env Rscript
+png("convex.png", width=700, height=700)
+plot(1:10000, 1:10000, type="n")
+points(9840,4189) 
+points(2051,8217) 
+points(3042,7151) 
+segments(9840,4189,3042,7151) 
+segments(2051,8217,9840,4189) 
+segments(3042,7151,2051,8217) 
+dev.off()

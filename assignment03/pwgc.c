@@ -73,7 +73,7 @@ void depth_first_search(int initial_state, int goal_state)
 		0,
 	}; // 방문한 정점을 저장
 
-	dfs_main( initial_state, goal_state, depth, visited);
+	dfs_main(initial_state, goal_state, depth, visited);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -84,16 +84,16 @@ int main(int argc, char **argv)
 	};
 
 	// 인접 행렬 만들기
-	make_adjacency_matrix( graph);
+	make_adjacency_matrix(graph);
 
 	// 인접 행렬 출력 (only for debugging)
-	print_graph( graph, 16);
+	print_graph(graph, 16);
 
 	// .net 파일 만들기
 	// save_graph( "pwgc.net", graph, 16);
 
 	// 깊이 우선 탐색
-	depth_first_search( 0, 15); // initial state, goal state
+	depth_first_search(0, 15); // initial state, goal state
 
 	return 0;
 }
@@ -128,18 +128,22 @@ static void get_pwgc(int state, int *p, int *w, int *g, int *c)
 
 // 허용되지 않는 상태인지 검사
 // 예) 농부없이 늑대와 염소가 같이 있는 경우 / 농부없이 염소와 양배추가 같이 있는 경우
-// 011_ 100_ / 0_11 1_00 / 
+// 011_ 100_ / 0_11 1_00 /
 // return value: 1 허용되지 않는 상태인 경우, 0 허용되는 상태인 경우
-static int is_dead_end(int state){
+static int is_dead_end(int state)
+{
 	int p, w, g, c;
 	get_pwgc(state, &p, &w, &g, &c);
-	if( w == g && p != w){
-		return 1;
-	} 
-	else if(g == c && p != g){
+	if (w == g && p != w)
+	{
 		return 1;
 	}
-	else{
+	else if (g == c && p != g)
+	{
+		return 1;
+	}
+	else
+	{
 		return 0;
 	}
 }
@@ -148,7 +152,8 @@ static int is_dead_end(int state){
 // 농부 또는 농부와 다른 하나의 아이템이 강 반대편으로 이동할 수 있는 상태만 허용
 // 허용되지 않는 상태(dead-end)로의 전이인지 검사
 // return value: 1 전이 가능한 경우, 0 전이 불이가능한 경우
-static int is_possible_transition(int state1, int state2){
+static int is_possible_transition(int state1, int state2)
+{
 	int p1, w1, g1, c1;
 	int p2, w2, g2, c2;
 
@@ -156,34 +161,42 @@ static int is_possible_transition(int state1, int state2){
 	get_pwgc(state2, &p2, &w2, &g2, &c2);
 
 	// PEASANT NOT MOVE
-	if(p1 == p2){ 
+	if (p1 == p2)
+	{
 		return 0;
 	}
 
 	// MOVE WITHOUT PEASANT
-	if(p1 != w1 && w1 != w2){
+	if (p1 != w1 && w1 != w2)
+	{
 		return 0;
 	}
-	else if(p1 != g1 && g1 != g2){
+	else if (p1 != g1 && g1 != g2)
+	{
 		return 0;
-	} 
-	else if(p1 != c1 && c1 != c2){
+	}
+	else if (p1 != c1 && c1 != c2)
+	{
 		return 0;
 	}
 
 	// MOVE MORE THAN 2
-	if(w1 != w2 && g1 != g2){
+	if (w1 != w2 && g1 != g2)
+	{
 		return 0;
 	}
-	else if(w1 != w2 && c1 != c2){
+	else if (w1 != w2 && c1 != c2)
+	{
 		return 0;
 	}
-	else if(c1 != c2 && g1 != g2){
+	else if (c1 != c2 && g1 != g2)
+	{
 		return 0;
 	}
 
-	//NEWSTAE IS DEAD-END
-	if(is_dead_end(state2)){
+	// NEWSTAE IS DEAD-END
+	if (is_dead_end(state2))
+	{
 		return 0;
 	}
 
@@ -196,58 +209,70 @@ static int is_possible_transition(int state1, int state2){
 // state & 7: P 1 -> 0
 // state | 8: P 0 -> 1
 // return value : 새로운 상태
-static int changeP(int state){
+static int changeP(int state)
+{
 	return state & PEASANT ? state & ~PEASANT : state | PEASANT;
 }
 
 // 상태 변경: 농부, 늑대 이동
 // return value : 새로운 상태, 상태 변경이 불가능한 경우: -1
-static int changePW(int state){
+static int changePW(int state)
+{
 	int newState;
 	newState = state & PEASANT ? state & ~PEASANT : state | PEASANT;
 	newState = newState & WOLF ? newState & ~WOLF : newState | WOLF;
-	if(is_possible_transition(state,newState)){
+	if (is_possible_transition(state, newState))
+	{
 		return newState;
-	} 
-	else{
+	}
+	else
+	{
 		return -1;
 	}
-	
 }
 
 // 상태 변경: 농부, 염소 이동
 // return value : 새로운 상태, 상태 변경이 불가능한 경우: -1
-static int changePG(int state){
+static int changePG(int state)
+{
 	int newState;
 	newState = state & PEASANT ? state & ~PEASANT : state | PEASANT;
 	newState = newState & GOAT ? newState & ~GOAT : newState | GOAT;
-	if(is_possible_transition(state,newState)){
+	if (is_possible_transition(state, newState))
+	{
 		return newState;
-	} 
-	else{
+	}
+	else
+	{
 		return -1;
 	}
 }
 
 // 상태 변경: 농부, 양배추 이동
 // return value : 새로운 상태, 상태 변경이 불가능한 경우: -1
-static int changePC(int state){
+static int changePC(int state)
+{
 	int newState;
 	newState = state & PEASANT ? state & ~PEASANT : state | PEASANT;
 	newState = newState & CABBAGE ? newState & ~CABBAGE : newState | CABBAGE;
-	if(is_possible_transition(state,newState)){
+	if (is_possible_transition(state, newState))
+	{
 		return newState;
-	} 
-	else{
+	}
+	else
+	{
 		return -1;
 	}
 }
 
 // 주어진 state가 이미 방문한 상태인지 검사
 // return value : 1 visited, 0 not visited
-static int is_visited(int visited[], int depth, int state){
-	for(int i = 0; i < depth; i++){
-		if(state == visited[i]){
+static int is_visited(int visited[], int depth, int state)
+{
+	for (int i = 0; i < depth; i++)
+	{
+		if (state == visited[i])
+		{
 			return 1;
 		}
 	}
@@ -255,8 +280,10 @@ static int is_visited(int visited[], int depth, int state){
 }
 
 // 방문한 경로(상태들)을 차례로 화면에 출력
-static void print_path(int visited[], int depth){
-	for(int i = 0; i < depth; i++){
+static void print_path(int visited[], int depth)
+{
+	for (int i = 0; i < depth + 1; i++)
+	{
 		print_statename(stdout, visited[i]);
 		printf("\n");
 	}
@@ -269,52 +296,68 @@ static void print_path(int visited[], int depth){
 // stdout: 표준출력, stdin: 표준입력
 // p이동, pw이동, pg이동, pc이동
 // Depth First Search
-static void dfs_main(int initial_state, int goal_state, int depth, int visited[]){
+static void dfs_main(int initial_state, int goal_state, int depth, int visited[])
+{
 	printf("current state is ");
 	print_statename(stdout, initial_state);
-	printf(" (depth %d)\n", depth); 
+	printf(" (depth %d)\n", depth);
+
 	visited[depth] = initial_state;
 
-	if(initial_state == goal_state){
+	if (initial_state == goal_state)
+	{
+		visited[depth] = initial_state;
 		printf("Goal-state found!\n");
 		print_path(visited, depth);
+		return;
 	}
 
 	int nextState;
 	nextState = changeP(initial_state);
-	if(is_dead_end(nextState)){
+	if (is_dead_end(nextState))
+	{
 		printf("\tnext state ");
 		print_statename(stdout, nextState);
 		printf(" is dead-end\n");
 	}
-	else if(is_visited(visited, depth, nextState)){
+	else if (is_visited(visited, depth, nextState))
+	{
 		printf("\tnext state ");
 		print_statename(stdout, nextState);
 		printf(" has been visited\n");
 	}
-	else{
-		dfs_main(nextState, goal_state, depth+1, visited);
+	else
+	{
+		dfs_main(nextState, goal_state, depth + 1, visited);
 		printf("back to ");
 		print_statename(stdout, initial_state);
 		printf(" (%d)\n", depth);
 	}
 
 	nextState = changePW(initial_state);
-	if(nextState == -1){
-		if(is_dead_end(nextState)){
+	if (nextState == -1)
+	{
+		int newState;
+		newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
+		newState = newState & WOLF ? newState & ~WOLF : newState | WOLF;
+		if (is_dead_end(newState))
+		{
 			printf("\tnext state ");
-			print_statename(stdout, nextState);
+			print_statename(stdout, newState);
 			printf(" is dead-end\n");
 		}
 	}
-	else{
-		if(is_visited(visited, depth, nextState)){
+	else
+	{
+		if (is_visited(visited, depth, nextState))
+		{
 			printf("\tnext state ");
 			print_statename(stdout, nextState);
 			printf(" has been visited\n");
 		}
-		else{
-			dfs_main(nextState, goal_state, depth+1, visited);
+		else
+		{
+			dfs_main(nextState, goal_state, depth + 1, visited);
 			printf("back to ");
 			print_statename(stdout, initial_state);
 			printf(" (%d)\n", depth);
@@ -322,21 +365,29 @@ static void dfs_main(int initial_state, int goal_state, int depth, int visited[]
 	}
 
 	nextState = changePG(initial_state);
-	if(nextState == -1){
-		if(is_dead_end(nextState)){
+	if (nextState == -1)
+	{
+		int newState;
+		newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
+		newState = newState & GOAT ? newState & ~GOAT : newState | GOAT;
+		if (is_dead_end(newState))
+		{
 			printf("\tnext state ");
-			print_statename(stdout, nextState);
+			print_statename(stdout, newState);
 			printf(" is dead-end\n");
 		}
 	}
-	else{
-		if(is_visited(visited, depth, nextState)){
+	else
+	{
+		if (is_visited(visited, depth, nextState))
+		{
 			printf("\tnext state ");
 			print_statename(stdout, nextState);
 			printf(" has been visited\n");
 		}
-		else{
-			dfs_main(nextState, goal_state, depth+1, visited);
+		else
+		{
+			dfs_main(nextState, goal_state, depth + 1, visited);
 			printf("back to ");
 			print_statename(stdout, initial_state);
 			printf(" (%d)\n", depth);
@@ -344,27 +395,35 @@ static void dfs_main(int initial_state, int goal_state, int depth, int visited[]
 	}
 
 	nextState = changePC(initial_state);
-	if(nextState == -1){
-		if(is_dead_end(nextState)){
+	if (nextState == -1)
+	{
+		int newState;
+		newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
+		newState = newState & CABBAGE ? newState & ~CABBAGE : newState | CABBAGE;
+		if (is_dead_end(newState))
+		{
 			printf("\tnext state ");
-			print_statename(stdout, nextState);
+			print_statename(stdout, newState);
 			printf(" is dead-end\n");
 		}
 	}
-	else{
-		if(is_visited(visited, depth, nextState)){
+	else
+	{
+		if (is_visited(visited, depth, nextState))
+		{
 			printf("\tnext state ");
 			print_statename(stdout, nextState);
 			printf(" has been visited\n");
 		}
-		else{
-			dfs_main(nextState, goal_state, depth+1, visited);
+		else
+		{
+			dfs_main(nextState, goal_state, depth + 1, visited);
 			printf("back to ");
 			print_statename(stdout, initial_state);
 			printf(" (%d)\n", depth);
 		}
 	}
-	
+
 	return;
 }
 
@@ -373,10 +432,13 @@ static void dfs_main(int initial_state, int goal_state, int depth, int visited[]
 // 상태간 전이 가능성 점검
 // 허용되지 않는 상태인지 점검
 // i -> n1, n2, n3, n4
-void make_adjacency_matrix(int graph[][16]){
+void make_adjacency_matrix(int graph[][16])
+{
 	int n1, n2, n3, n4;
-	for(int i = 0; i < 16; i++){
-		if(is_dead_end(i)){
+	for (int i = 0; i < 16; i++)
+	{
+		if (is_dead_end(i))
+		{
 			continue;
 		}
 		n1 = changeP(i);
@@ -384,19 +446,23 @@ void make_adjacency_matrix(int graph[][16]){
 		n3 = changePG(i);
 		n4 = changePC(i);
 
-		if(!is_dead_end(n1)){
+		if (!is_dead_end(n1))
+		{
 			graph[i][n1] = 1;
 			graph[n1][i] = 1;
 		}
-		if(n2 != -1){
+		if (n2 != -1)
+		{
 			graph[i][n2] = 1;
 			graph[n2][i] = 1;
 		}
-		if(n3 != -1){
+		if (n3 != -1)
+		{
 			graph[i][n3] = 1;
 			graph[n3][i] = 1;
 		}
-		if(n4 != -1){
+		if (n4 != -1)
+		{
 			graph[i][n4] = 1;
 			graph[n4][i] = 1;
 		}
@@ -404,9 +470,12 @@ void make_adjacency_matrix(int graph[][16]){
 }
 
 // 인접행렬로 표현된 graph를 화면에 출력
-void print_graph(int graph[][16], int num){
-	for(int i = 0; i<num; i++){
-		for(int j = 0; j<num; j++){
+void print_graph(int graph[][16], int num)
+{
+	for (int i = 0; i < num; i++)
+	{
+		for (int j = 0; j < num; j++)
+		{
 			printf("%d ", graph[i][j]);
 		}
 		printf("\n");

@@ -87,10 +87,10 @@ int main(int argc, char **argv)
 	make_adjacency_matrix(graph);
 
 	// 인접 행렬 출력 (only for debugging)
-	print_graph(graph, 16);
+	// print_graph(graph, 16);
 
 	// .net 파일 만들기
-	// save_graph( "pwgc.net", graph, 16);
+	save_graph("pwgc.net", graph, 16);
 
 	// 깊이 우선 탐색
 	depth_first_search(0, 15); // initial state, goal state
@@ -195,10 +195,10 @@ static int is_possible_transition(int state1, int state2)
 	}
 
 	// NEWSTAE IS DEAD-END
-	if (is_dead_end(state2))
-	{
-		return 0;
-	}
+	// if (is_dead_end(state2))
+	// {
+	// 	return 0;
+	// }
 
 	return 1;
 }
@@ -309,6 +309,7 @@ static void dfs_main(int initial_state, int goal_state, int depth, int visited[]
 		visited[depth] = initial_state;
 		printf("Goal-state found!\n");
 		print_path(visited, depth);
+		printf("\n");
 		return;
 	}
 
@@ -331,96 +332,96 @@ static void dfs_main(int initial_state, int goal_state, int depth, int visited[]
 		dfs_main(nextState, goal_state, depth + 1, visited);
 		printf("back to ");
 		print_statename(stdout, initial_state);
-		printf(" (%d)\n", depth);
+		printf(" (depth %d)\n", depth);
 	}
 
-	nextState = changePW(initial_state);
-	if (nextState == -1)
+	nextState = changePW(initial_state); // -1, state-> is_dead_end
+	if (nextState != -1)
 	{
-		int newState;
-		newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
-		newState = newState & WOLF ? newState & ~WOLF : newState | WOLF;
-		if (is_dead_end(newState))
-		{
-			printf("\tnext state ");
-			print_statename(stdout, newState);
-			printf(" is dead-end\n");
-		}
-	}
-	else
-	{
-		if (is_visited(visited, depth, nextState))
+		// int newState;
+		// newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
+		// newState = newState & WOLF ? newState & ~WOLF : newState | WOLF;
+		if (is_dead_end(nextState))
 		{
 			printf("\tnext state ");
 			print_statename(stdout, nextState);
-			printf(" has been visited\n");
+			printf(" is dead-end\n");
 		}
 		else
 		{
-			dfs_main(nextState, goal_state, depth + 1, visited);
-			printf("back to ");
-			print_statename(stdout, initial_state);
-			printf(" (%d)\n", depth);
+			if (is_visited(visited, depth, nextState))
+			{
+				printf("\tnext state ");
+				print_statename(stdout, nextState);
+				printf(" has been visited\n");
+			}
+			else
+			{
+				dfs_main(nextState, goal_state, depth + 1, visited);
+				printf("back to ");
+				print_statename(stdout, initial_state);
+				printf(" (depth %d)\n", depth);
+			}
 		}
 	}
 
 	nextState = changePG(initial_state);
-	if (nextState == -1)
+	if (nextState != -1)
 	{
-		int newState;
-		newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
-		newState = newState & GOAT ? newState & ~GOAT : newState | GOAT;
-		if (is_dead_end(newState))
-		{
-			printf("\tnext state ");
-			print_statename(stdout, newState);
-			printf(" is dead-end\n");
-		}
-	}
-	else
-	{
-		if (is_visited(visited, depth, nextState))
+		// int newState;
+		// newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
+		// newState = newState & WOLF ? newState & ~WOLF : newState | WOLF;
+		if (is_dead_end(nextState))
 		{
 			printf("\tnext state ");
 			print_statename(stdout, nextState);
-			printf(" has been visited\n");
+			printf(" is dead-end\n");
 		}
 		else
 		{
-			dfs_main(nextState, goal_state, depth + 1, visited);
-			printf("back to ");
-			print_statename(stdout, initial_state);
-			printf(" (%d)\n", depth);
+			if (is_visited(visited, depth, nextState))
+			{
+				printf("\tnext state ");
+				print_statename(stdout, nextState);
+				printf(" has been visited\n");
+			}
+			else
+			{
+				dfs_main(nextState, goal_state, depth + 1, visited);
+				printf("back to ");
+				print_statename(stdout, initial_state);
+				printf(" (depth %d)\n", depth);
+			}
 		}
 	}
 
 	nextState = changePC(initial_state);
-	if (nextState == -1)
+	if (nextState != -1)
 	{
-		int newState;
-		newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
-		newState = newState & CABBAGE ? newState & ~CABBAGE : newState | CABBAGE;
-		if (is_dead_end(newState))
-		{
-			printf("\tnext state ");
-			print_statename(stdout, newState);
-			printf(" is dead-end\n");
-		}
-	}
-	else
-	{
-		if (is_visited(visited, depth, nextState))
+		// int newState;
+		// newState = initial_state & PEASANT ? initial_state & ~PEASANT : initial_state | PEASANT;
+		// newState = newState & WOLF ? newState & ~WOLF : newState | WOLF;
+		if (is_dead_end(nextState))
 		{
 			printf("\tnext state ");
 			print_statename(stdout, nextState);
-			printf(" has been visited\n");
+			printf(" is dead-end\n");
 		}
 		else
 		{
-			dfs_main(nextState, goal_state, depth + 1, visited);
-			printf("back to ");
-			print_statename(stdout, initial_state);
-			printf(" (%d)\n", depth);
+			if (is_visited(visited, depth, nextState))
+			{
+				printf("\tnext state ");
+				print_statename(stdout, nextState);
+				printf(" has been visited\n");
+			}
+			else
+			{
+				dfs_main(nextState, goal_state, depth + 1, visited);
+				printf("back to ");
+				print_statename(stdout, initial_state);
+				printf(" (depth %d)\n", depth);
+			}
 		}
 	}
 
@@ -451,17 +452,17 @@ void make_adjacency_matrix(int graph[][16])
 			graph[i][n1] = 1;
 			graph[n1][i] = 1;
 		}
-		if (n2 != -1)
+		if (n2 != -1 && !is_dead_end(n2))
 		{
 			graph[i][n2] = 1;
 			graph[n2][i] = 1;
 		}
-		if (n3 != -1)
+		if (n3 != -1 && !is_dead_end(n3))
 		{
 			graph[i][n3] = 1;
 			graph[n3][i] = 1;
 		}
-		if (n4 != -1)
+		if (n4 != -1 && !is_dead_end(n4))
 		{
 			graph[i][n4] = 1;
 			graph[n4][i] = 1;
@@ -476,7 +477,7 @@ void print_graph(int graph[][16], int num)
 	{
 		for (int j = 0; j < num; j++)
 		{
-			printf("%d ", graph[i][j]);
+			printf("%d\t", graph[i][j]);
 		}
 		printf("\n");
 	}
@@ -484,4 +485,31 @@ void print_graph(int graph[][16], int num)
 
 // 주어진 그래프(graph)를 .net 파일로 저장
 // pgwc.net 참조
-void save_graph(char *filename, int graph[][16], int num);
+void save_graph(char *filename, int graph[][16], int num)
+{
+	FILE *fp = fopen(filename, "w");
+
+	fprintf(fp, "*Vertices 16\n");
+	for (int i = 0; i < 16; i++)
+	{
+		fprintf(fp, "%d ", i + 1);
+		fprintf(fp, "\"");
+		print_statename(fp, i);
+		fprintf(fp, "\"");
+		fprintf(fp, "\n");
+	}
+
+	fprintf(fp, "*Edges\n");
+
+	for (int i = 0; i < 16; i++)
+	{
+		for (int j = i + 1; j < 16; j++)
+		{
+			if (graph[i][j])
+			{
+				fprintf(fp, " %d %d\n", i + 1, j + 1);
+			}
+		}
+	}
+	fclose(fp);
+}

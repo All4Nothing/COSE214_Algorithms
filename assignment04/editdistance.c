@@ -10,7 +10,7 @@
 
 #define INSERT_COST 1
 #define DELETE_COST 1
-#define SUBSTITUTE_COST 1
+#define SUBSTITUTE_COST 2 // FIXME 1
 #define TRANSPOSE_COST 1
 
 // 재귀적으로 연산자 행렬을 순회하며, 두 문자열이 최소편집거리를 갖는 모든 가능한 정렬(alignment) 결과를 출력한다.
@@ -137,28 +137,38 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 	if (operation & SUBSTITUTE_OP)
 	{
 		align_str[level][0] = str1[n - 1];
+		align_str[level][1] = ' ';
 		align_str[level][2] = '-';
+		align_str[level][3] = ' ';
 		align_str[level][4] = str2[m - 1];
+		align_str[level][5] = ' ';
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m - 1, level + 1, align_str);
 	}
 	if (operation & MATCH_OP)
 	{
+		
 		align_str[level][0] = str1[n - 1];
+		align_str[level][1] = ' ';
 		align_str[level][2] = '-';
+		align_str[level][3] = ' ';
 		align_str[level][4] = str2[m - 1];
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m - 1, level + 1, align_str);
 	}
 	if (operation & INSERT_OP)
 	{
 		align_str[level][0] = '*';
+		align_str[level][1] = ' ';
 		align_str[level][2] = '-';
+		align_str[level][3] = ' ';
 		align_str[level][4] = str2[m - 1];
 		backtrace_main(op_matrix, col_size, str1, str2, n, m - 1, level + 1, align_str);
 	}
 	if (operation & DELETE_OP)
 	{
 		align_str[level][0] = str1[n - 1];
+		align_str[level][1] = ' ';
 		align_str[level][2] = '-';
+		align_str[level][3] = ' ';
 		align_str[level][4] = '*';
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m, level + 1, align_str);
 	}
@@ -167,7 +177,9 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 	{
 		align_str[level][0] = str1[n - 2];
 		align_str[level][1] = str1[n - 1];
+		align_str[level][2] = ' ';
 		align_str[level][3] = '-';
+		align_str[level][4] = ' ';
 		align_str[level][5] = str2[m - 2];
 		align_str[level][6] = str2[m - 1];
 		backtrace_main(op_matrix, col_size, str1, str2, n - 2, m - 2, level + 1, align_str);
@@ -250,35 +262,38 @@ int min_editdistance(char *str1, char *str2)
 
 	d[0][0] = 0;
 
-	for (int i = 1; i <= n; i++)
+	for (int i = 1; i < n+1; i++)
 	{
 		d[i][0] = i;
-		op_matrix[i * (m + 1)] = DELETE_OP;
+		// FIXME
+		//op_matrix[i * (m + 1)] = DELETE_OP;
 	}
 
-	for (int j = 1; j <= m; j++)
+	for (int j = 1; j < m+1; j++)
 	{
 		d[0][j] = j;
-		op_matrix[j] = INSERT_OP;
+		// FIXME
+		//op_matrix[j] = INSERT_OP;
 	}
 
 	// S/M -> I -> D -> T
 	// FIXME
-	for (i = 1; i <= n; i++)
+	for (i = 1; i < n+1; i++)
 	{
-		for (j = 1; j <= m; j++)
+		for (j = 1; j < m+1; j++)
 		{
 
 			if (str1[i - 1] == str2[j - 1])
 			{
 				d[i][j] = d[i - 1][j - 1];
 				op_matrix[i * m + j] += MATCH_OP;
+	
 			}
 			else
 			{
-				if ((str1[i - 1] == str2[j - 2] && str1[i - 2] == str2[j - 1] && (i > 1 && j > 1)))
+				if (str1[i - 1] == str2[j - 2] && str1[i - 2] == str2[j - 1] && (i > 1 && j > 1))
 				{
-					d[i][j] = __GetMin4(d[i][j - 1] + INSERT_COST, d[i - 1][j] + DELETE_COST, d[i - 1][j - 1] + SUBSTITUTE_COST, d[i - 2][j - 2] + TRANSPOSE_COST);
+					d[i][j] = __GetMin4(d[i - 1][j - 1] + SUBSTITUTE_COST, d[i][j - 1] + INSERT_COST, d[i - 1][j] + DELETE_COST, d[i - 2][j - 2] + TRANSPOSE_COST);
 
 					if (d[i][j] == d[i - 1][j - 1] + SUBSTITUTE_COST)
 					{
@@ -318,8 +333,8 @@ int min_editdistance(char *str1, char *str2)
 		}
 	}
 
-	print_matrix(op_matrix, m + 1, str1, str2, n, m);
-	backtrace(op_matrix, m + 1, str1, str2, n, m);
+	print_matrix(op_matrix, m, str1, str2, n, m);
+	backtrace(op_matrix, m, str1, str2, n, m);
 
 	return d[n][m];
 }

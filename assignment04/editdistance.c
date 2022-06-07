@@ -10,7 +10,7 @@
 
 #define INSERT_COST 1
 #define DELETE_COST 1
-#define SUBSTITUTE_COST 2 // FIXME 1
+#define SUBSTITUTE_COST 1 
 #define TRANSPOSE_COST 1
 
 // 재귀적으로 연산자 행렬을 순회하며, 두 문자열이 최소편집거리를 갖는 모든 가능한 정렬(alignment) 결과를 출력한다.
@@ -123,16 +123,14 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 
 	if (n == 0 && m == 0)
 	{
-		printf("[%d]==============================", count);
+		printf("[%d]==============================\n", count);
 		count++;
-		// FIXME
 		print_alignment(align_str, level - 1);
 		printf("\n");
 		return;
 	}
 
 	int operation = op_matrix[n * col_size + m];
-
 	// a _ - _ b _ _ _
 	if (operation & SUBSTITUTE_OP)
 	{
@@ -141,7 +139,7 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 		align_str[level][2] = '-';
 		align_str[level][3] = ' ';
 		align_str[level][4] = str2[m - 1];
-		align_str[level][5] = ' ';
+		align_str[level][5] = 0; // 0으로 초기화
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m - 1, level + 1, align_str);
 	}
 	if (operation & MATCH_OP)
@@ -152,6 +150,7 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 		align_str[level][2] = '-';
 		align_str[level][3] = ' ';
 		align_str[level][4] = str2[m - 1];
+		align_str[level][5] = 0;
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m - 1, level + 1, align_str);
 	}
 	if (operation & INSERT_OP)
@@ -161,6 +160,7 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 		align_str[level][2] = '-';
 		align_str[level][3] = ' ';
 		align_str[level][4] = str2[m - 1];
+		align_str[level][5] = 0;
 		backtrace_main(op_matrix, col_size, str1, str2, n, m - 1, level + 1, align_str);
 	}
 	if (operation & DELETE_OP)
@@ -170,6 +170,7 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 		align_str[level][2] = '-';
 		align_str[level][3] = ' ';
 		align_str[level][4] = '*';
+		align_str[level][5] = 0;
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m, level + 1, align_str);
 	}
 	// a b _ - _ b a _
@@ -180,8 +181,9 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 		align_str[level][2] = ' ';
 		align_str[level][3] = '-';
 		align_str[level][4] = ' ';
-		align_str[level][5] = str2[m - 2];
-		align_str[level][6] = str2[m - 1];
+		align_str[level][5] = str2[n - 2];
+		align_str[level][6] = str2[n - 1];
+		align_str[level][7] = 0;
 		backtrace_main(op_matrix, col_size, str1, str2, n - 2, m - 2, level + 1, align_str);
 	}
 }
@@ -193,13 +195,11 @@ void print_matrix(int *op_matrix, int col_size, char *str1, char *str2, int n, i
 {
 	int operation;
 
-	// FIXME i,j 범위?
 	for (int i = n; i >= 0; i--)
 	{
 		for (int j = 0; j <= m; j++)
 		{
 			operation = op_matrix[i * col_size + j];
-			// FIXME
 			if (i == 0 && j == 0)
 			{
 				printf("\t");
@@ -277,7 +277,6 @@ int min_editdistance(char *str1, char *str2)
 	}
 
 	// S/M -> I -> D -> T
-	// FIXME
 	for (i = 1; i < n+1; i++)
 	{
 		for (j = 1; j < m+1; j++)

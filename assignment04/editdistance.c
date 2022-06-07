@@ -134,56 +134,38 @@ static void backtrace_main(int *op_matrix, int col_size, char *str1, char *str2,
 	// a _ - _ b _ _ _
 	if (operation & SUBSTITUTE_OP)
 	{
+		strcpy(align_str[level], "a - a");
 		align_str[level][0] = str1[n - 1];
-		align_str[level][1] = ' ';
-		align_str[level][2] = '-';
-		align_str[level][3] = ' ';
 		align_str[level][4] = str2[m - 1];
-		align_str[level][5] = 0; // 0으로 초기화
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m - 1, level + 1, align_str);
 	}
 	if (operation & MATCH_OP)
 	{
-		
+		strcpy(align_str[level], "a - a");
 		align_str[level][0] = str1[n - 1];
-		align_str[level][1] = ' ';
-		align_str[level][2] = '-';
-		align_str[level][3] = ' ';
 		align_str[level][4] = str2[m - 1];
-		align_str[level][5] = 0;
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m - 1, level + 1, align_str);
 	}
 	if (operation & INSERT_OP)
 	{
-		align_str[level][0] = '*';
-		align_str[level][1] = ' ';
-		align_str[level][2] = '-';
-		align_str[level][3] = ' ';
+		strcpy(align_str[level], "* - a");
 		align_str[level][4] = str2[m - 1];
-		align_str[level][5] = 0;
 		backtrace_main(op_matrix, col_size, str1, str2, n, m - 1, level + 1, align_str);
 	}
 	if (operation & DELETE_OP)
 	{
+		strcpy(align_str[level], "a - *");
 		align_str[level][0] = str1[n - 1];
-		align_str[level][1] = ' ';
-		align_str[level][2] = '-';
-		align_str[level][3] = ' ';
-		align_str[level][4] = '*';
-		align_str[level][5] = 0;
 		backtrace_main(op_matrix, col_size, str1, str2, n - 1, m, level + 1, align_str);
 	}
 	// a b _ - _ b a _
 	if (operation & TRANSPOSE_OP)
 	{
+		strcpy(align_str[level], "ab - ba");
 		align_str[level][0] = str1[n - 2];
 		align_str[level][1] = str1[n - 1];
-		align_str[level][2] = ' ';
-		align_str[level][3] = '-';
-		align_str[level][4] = ' ';
 		align_str[level][5] = str2[n - 2];
 		align_str[level][6] = str2[n - 1];
-		align_str[level][7] = 0;
 		backtrace_main(op_matrix, col_size, str1, str2, n - 2, m - 2, level + 1, align_str);
 	}
 }

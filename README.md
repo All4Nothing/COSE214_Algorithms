@@ -8,4 +8,5 @@ Korea University Dept. of Computer Science & Engineering
   Assignment 2. Divide-and-conquer Convex hull problem
   Assignment 3. River crossing puzzle problem
   Assignment 4. Minimum edit distance / alignment
+  Assignment 5. Huffman code implementation
 ```  

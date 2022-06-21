@@ -154,7 +154,50 @@ void destroyTree(tNode *root)
 // 입력 텍스트 파일(infp)을 허프만 코드를 이용하여 출력 파일(outfp)로 인코딩
 // return value : 인코딩된 텍스트의 바이트 수 (파일 크기와는 다름)
 // TODO
-int encoding(char *codes[], int ch_freq[], FILE *infp, FILE *outfp);
+int encoding(char *codes[], int ch_freq[], FILE *infp, FILE *outfp)
+{
+	int chr;
+	int count = 0;
+	int len;
+
+	char str[256];
+	char byte = 0;
+	int bitCnt = 0;
+
+	while (chr = fgetc(infp) != EOF)
+	{
+		len = strlen(codes[chr]);
+		count += len;
+
+		strcpy(str, codes[chr]);
+
+		for (int i = 0; i < len; i++)
+		{
+			byte <<= 1;
+			byte |= str[i] - '0';
+			bitCnt++;
+			if (bitCnt == 8)
+			{
+				fwrite(&byte, sizeof(char), 1, outfp);
+				byte = 0;
+				bitCnt = 0;
+			}
+		}
+		if (feof(infp) != 0)
+		{
+			break;
+		}
+	}
+	if (bitCnt != 0)
+	{
+		byte <<= 8 - bitCnt;
+		fwrite(&byte, sizeof(char), 1, outfp);
+	}
+
+	fwrite(&count, sizeof(int), 1, outfp);
+
+	return count;
+}
 
 // 입력 파일(infp)을 허프만 트리를 이용하여 텍스트 파일(outfp)로 디코딩
 void decoding(tNode *root, FILE *infp, FILE *outfp)

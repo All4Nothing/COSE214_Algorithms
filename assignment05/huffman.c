@@ -14,7 +14,7 @@ static void traverse_tree(tNode *root, char *code, int depth, char *codes[])
 {
 	if (root->left == NULL && root->right == NULL)
 	{
-		code[depth] = '0';
+		code[depth] = 0;
 		codes[root->data] = strdup(code);
 		return;
 	}
@@ -69,10 +69,10 @@ void make_huffman_code(tNode *root, char *codes[])
 // return value : 파일에서 읽은 바이트 수
 int read_chars(FILE *fp, int ch_freq[])
 {
-	char chr;
+	int chr;
 	int count = 0;
 
-	while (chr = fget(fp) != EOF)
+	while ((chr = fgetc(fp)) != EOF)
 	{
 		ch_freq[chr]++;
 		count++;
@@ -153,21 +153,21 @@ void destroyTree(tNode *root)
 
 // 입력 텍스트 파일(infp)을 허프만 코드를 이용하여 출력 파일(outfp)로 인코딩
 // return value : 인코딩된 텍스트의 바이트 수 (파일 크기와는 다름)
-// TODO
 int encoding(char *codes[], int ch_freq[], FILE *infp, FILE *outfp)
 {
 	int chr;
-	int count = 0;
 	int len;
+	int size;
 
 	char str[256];
 	char byte = 0;
 	int bitCnt = 0;
 
-	while (chr = fgetc(infp) != EOF)
+	fwrite(ch_freq, sizeof(int), 256, outfp);
+
+	while ((chr = fgetc(infp)) != EOF)
 	{
 		len = strlen(codes[chr]);
-		count += len;
 
 		strcpy(str, codes[chr]);
 
@@ -176,6 +176,7 @@ int encoding(char *codes[], int ch_freq[], FILE *infp, FILE *outfp)
 			byte <<= 1;
 			byte |= str[i] - '0';
 			bitCnt++;
+
 			if (bitCnt == 8)
 			{
 				fwrite(&byte, sizeof(char), 1, outfp);
@@ -194,33 +195,59 @@ int encoding(char *codes[], int ch_freq[], FILE *infp, FILE *outfp)
 		fwrite(&byte, sizeof(char), 1, outfp);
 	}
 
-	fwrite(&count, sizeof(int), 1, outfp);
+	fseek(outfp, 0, SEEK_END);
+	//size = ftell(outfp);
+	//printf("size before : %d\n", size);
+	size = ftell(outfp) - sizeof(int)*256;
+	//printf("size after : %d\n", size);
+	fwrite(&size, sizeof(int), 1, outfp);
 
-	return count;
+	return size;
+	
 }
 
 // 입력 파일(infp)을 허프만 트리를 이용하여 텍스트 파일(outfp)로 디코딩
 void decoding(tNode *root, FILE *infp, FILE *outfp)
 {
-	tNode *node;
-	node = root;
+	tNode *node = root;
 
-	char chr;
+	int size;
+	int count = 0;
+	int cur;
+	char bit;
 
-	while (chr = fgetc(infp) != EOF)
+	fseek(infp, -4, SEEK_END);
+	fread(&size, sizeof(int), 1, infp);
+	fseek(infp, sizeof(int) *256, SEEK_SET);
+
+	while(count < size*8)
 	{
-		if (chr == '0')
-		{
-			node = node->left;
-		}
-		else
-		{
-			node = node->right;
-		}
+		fread(&bit, sizeof(char), 1, infp);
 
-		if (node->left == NULL && node->right == NULL)
+		for(int i=0;i<8;i++)
 		{
-			fprintf(outfp, "%c", node->data);
+			cur = bit & (1 << (7-i));
+			count++;
+
+			if(cur == 0)
+			{
+				node = node->left;
+			}
+			else
+			{
+				node = node->right;
+			}
+
+			if(node->left == NULL && node->right == NULL)
+			{
+				fprintf(outfp, "%c", node->data);
+				node = root;
+			}
+
+			if(count == size*8)
+			{
+				break;
+			}
 		}
 	}
 }
